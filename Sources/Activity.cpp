@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Activity.h"
 #include "File.h"
-#include "HashManager.h"
+#include "ThreadManager.h"
 #include <csignal>
 #include <unistd.h>
 
@@ -26,7 +26,7 @@ void Help()
   std::cout << "\t -h: print this message" << std::endl;
 }
 
-Activity::Activity() : input(), output(), block(1), manager(std::make_unique<HashManager>())
+Activity::Activity() : input(), output(), block(1), manager(std::make_unique<ThreadManager>())
 {}
 
 void Activity::RegisterSignal(int signal, Activity::SignalHandle handle)

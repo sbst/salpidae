@@ -5,7 +5,6 @@ set(CXXFLAGS -Wall -std=c++14)
 
 find_package(Boost 1.36.0)
 
-message (${PROJECT_SOURCE_DIR})
 file(GLOB Sources *.cpp)
 add_executable(${PROJECT_NAME} ${Sources})
 
