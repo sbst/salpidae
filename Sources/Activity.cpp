@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "Activity.h"
 #include "File.h"
+#include "HashManager.h"
 #include <csignal>
 #include <unistd.h>
+
+//#define THREADS 20  // TODO: detect optimal threads number from filesize
 
 using namespace std::chrono_literals;
 
@@ -23,7 +26,7 @@ void Help()
   std::cout << "\t -h: print this message" << std::endl;
 }
 
-Activity::Activity() : input(), output(), block(1)
+Activity::Activity() : input(), output(), block(1), manager(std::make_unique<HashManager>())
 {}
 
 void Activity::RegisterSignal(int signal, Activity::SignalHandle handle)
@@ -78,14 +81,14 @@ bool Activity::ProcessArguments(int argc, char** argv)
 }
 
 void Activity::Run()
-{;
+{
   long int bytes = block*1048576;
   File file(input);
   while(!file.IsOpen())
   {
     const std::vector<char>& block = file.ReadBlock(bytes);
-    std::cout << bytes << std::endl;
+    manager->Seed(block, bytes);
+    manager->Write();
   }
 }
-
 

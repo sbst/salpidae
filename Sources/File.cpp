@@ -7,6 +7,11 @@ File::File(std::string name)
   if (!file.is_open()) throw std::runtime_error("Unable to open " + name);
 }
 
+File::File(File&& rhs)
+{
+  std::swap(file, rhs.file);
+}
+
 std::vector<char> File::ReadBlock(long int& size)
 {
   std::vector<char> buffer(size);

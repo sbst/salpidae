@@ -1,4 +1,5 @@
 #pragma once
+#include "IManager.h"
 #include <string>
 #include <memory>
 
@@ -28,5 +29,7 @@ private:
   std::string output;
 
   long int block;
+
+  std::unique_ptr<IManager> manager;
 
 };
