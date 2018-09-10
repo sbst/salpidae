@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "HashTable.h"
 
-HashTable::HashTable()
-{}
-
 void HashTable::Add(int id, std::string value)
 {
   table.emplace(id, value);
