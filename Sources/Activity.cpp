@@ -1,19 +1,13 @@
 #include "pch.h"
 #include "Activity.h"
 #include "ThreadManager.h"
-#include <csignal>
-#include <unistd.h>
+#include <boost/program_options.hpp>
 
 #define THREADS 20  // TODO: adjust it dynamically or from arguments
 
 using namespace std::chrono_literals;
 
-static volatile sig_atomic_t stop = 0;
-
-static void StopHandler(int sig)
-{
-  stop = 1;
-}
+namespace po = boost::program_options;
 
 void Help()
 {
@@ -28,53 +22,41 @@ void Help()
 Activity::Activity() : input(), output(), block(1), manager(std::make_unique<ThreadManager>(THREADS))
 {}
 
-void Activity::RegisterSignal(int signal, Activity::SignalHandle handle)
-{
-  switch(handle)
-  {
-    case Stop: std::signal(signal, StopHandler); break;
-    default: sout << "Unknown signal handler" << std::endl; break;
-  }
-}
-
 bool Activity::ProcessArguments(int argc, char** argv)
 {
   bool result = true;
-  int arg = -1;
-  while((arg = getopt(argc, argv, "i:o:b:h")) != -1)
+  try
   {
-    switch(arg)
+    po::options_description desc("Allowed options");
+    desc.add_options()
+          ("help,h","")
+          ("input,i", po::value<std::string>(&input))
+          ("output,o", po::value<std::string>(&output))
+          ("block,b", po::value<long int>(&block)->default_value(1));
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help"))
     {
-      case 'i': input = optarg; break;
-      case 'o': output = optarg; break;
-      case 'b':
-      {
-        try
-        {
-          block = std::stoi(optarg);
-        }
-        catch(const std::invalid_argument&)
-        {
-          result = false;
-          block = -1;
-        }
-      }
-      break;
-      case 'h':
-      {
-        Help();
-        return false;
-      }
-      break;
+      Help();
+      return false;
+    }
+
+    if (input.empty() || output.empty() || block < 1)
+    {
+      std::cout << "Wrong arguments" << std::endl;
+      Help();
+      result = false;
     }
   }
-
-  if (input.empty() || output.empty() || block < 0)
+  catch(const std::exception& e)
   {
-    sout << "Wrong arguments" << std::endl;
-    Help();
     result = false;
+    sout << e.what() << std::endl;
   }
+
   return result;
 }
 

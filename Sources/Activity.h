@@ -7,16 +7,9 @@ class Activity
 {
 public:
 
-  enum SignalHandle
-  {
-     Stop
-  };
-
   Activity();
 
   ~Activity() = default;
-
-  void RegisterSignal(int signal, Activity::SignalHandle handle);
 
   bool ProcessArguments(int argc, char* argv[]);
 
