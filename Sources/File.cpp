@@ -1,15 +1,21 @@
 #include "pch.h"
 #include "File.h"
 
-File::File(std::string name)
+File::File(std::string name, std::fstream::openmode mode)
 {
-  file.open(name, std::fstream::in | std::fstream::out | std::fstream::binary);
-  if (!file.is_open()) throw std::runtime_error("Unable to open " + name);
+  file.open(name, mode);
+  if (!file.is_open()) throw std::fstream::failure("Unable to open " + name);
 }
 
 File::File(File&& rhs)
 {
   std::swap(file, rhs.file);
+}
+
+File& File::operator=(File&& rhs)
+{
+  std::swap(file, rhs.file);
+  return *this;
 }
 
 std::vector<char> File::ReadBlock(long int& size)
@@ -20,9 +26,14 @@ std::vector<char> File::ReadBlock(long int& size)
   return buffer;
 }
 
+void File::Write(const std::string& str)
+{
+  file << str << std::endl;
+}
+
 bool File::IsOpen()
 {
-  return !file;
+  return file.peek() != EOF;
 }
 
 File::~File()

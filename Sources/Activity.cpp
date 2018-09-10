@@ -1,11 +1,10 @@
 #include "pch.h"
 #include "Activity.h"
-#include "File.h"
 #include "ThreadManager.h"
 #include <csignal>
 #include <unistd.h>
 
-//#define THREADS 20  // TODO: detect optimal threads number from filesize
+#define THREADS 20
 
 using namespace std::chrono_literals;
 
@@ -26,7 +25,7 @@ void Help()
   std::cout << "\t -h: print this message" << std::endl;
 }
 
-Activity::Activity() : input(), output(), block(1), manager(std::make_unique<ThreadManager>())
+Activity::Activity() : input(), output(), block(1), manager(std::make_unique<ThreadManager>(THREADS))
 {}
 
 void Activity::RegisterSignal(int signal, Activity::SignalHandle handle)
@@ -58,7 +57,6 @@ bool Activity::ProcessArguments(int argc, char** argv)
         {
           result = false;
           block = -1;
-
         }
       }
       break;
@@ -83,12 +81,26 @@ bool Activity::ProcessArguments(int argc, char** argv)
 void Activity::Run()
 {
   long int bytes = block*1048576;
-  File file(input);
-  while(!file.IsOpen())
+  try
   {
-    const std::vector<char>& block = file.ReadBlock(bytes);
-    manager->Seed(block, bytes);
-    manager->Write();
+    sout << "Open input file: " << input << "..." << std::endl;
+    File in(input, std::fstream::in | std::fstream::binary);
+    sout << "Open output file: " << output << "..." << std::endl;
+    manager->SetOutput(std::move(File(output, std::fstream::out)));
+    sout << "Seeding..." << std::endl;
+    while(in.IsOpen())
+    {
+      const std::vector<char>& block = in.ReadBlock(bytes);
+      manager->Seed(block, bytes);
+      manager->Write();
+    }
+    sout << "Clear..." << std::endl;
+    manager->Clear();
+    sout << "Done" << std::endl;
+  }
+  catch(const std::fstream::failure& e)
+  {
+    sout << "[Exception] " << e.what() << std::endl;
   }
 }
 

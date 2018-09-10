@@ -10,11 +10,11 @@ public:
 
   virtual ~HashTable() = default;
 
-  virtual void Add(int key, int value) override;
+  virtual void Add(int key, std::string value) override;
 
-  virtual void Sort();
+  virtual void ToFile(File& file, int length) override;
 
 protected:
 
-  std::map<int, int> table;
+  std::map<int, std::string> table;
 };

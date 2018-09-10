@@ -9,7 +9,7 @@ public:
 
   virtual ~HashTableAsync() = default;
 
-  virtual void Add(int key, int value) override;
+  virtual void Add(int key, std::string value) override;
 
 private:
 
