@@ -23,15 +23,17 @@ public:
 
 protected:
 
-  void Wait();
-
-  void CleanThreads();
+  void Update();
 
   HashTableAsync table;
 
   File output;
 
 private:
+
+  void Wait();
+
+  void CleanThreads();
 
   std::vector<std::thread> threads;
 

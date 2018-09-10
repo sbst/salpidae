@@ -4,7 +4,7 @@
 #include <csignal>
 #include <unistd.h>
 
-#define THREADS 20
+#define THREADS 20  // TODO: adjust it dynamically or from arguments
 
 using namespace std::chrono_literals;
 
@@ -91,8 +91,15 @@ void Activity::Run()
     while(in.IsOpen())
     {
       const std::vector<char>& block = in.ReadBlock(bytes);
-      manager->Seed(block, bytes);
-      manager->Write();
+      try
+      {
+        manager->Seed(block, bytes);
+        manager->Write();
+      }
+      catch(const std::exception& e)
+      {
+        sout << e.what() << std::endl;
+      }
     }
     sout << "Clear..." << std::endl;
     manager->Clear();

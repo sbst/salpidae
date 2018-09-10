@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "HashTable.h"
-#include <iostream>
-#include <algorithm>
 
 HashTable::HashTable()
 {}
@@ -14,7 +13,15 @@ void HashTable::ToFile(File& file, int length)
 {
   for (auto i = 0; i < length; i++)
   {
-    file.Write(table.at(i));
+    try
+    {
+      file.Write(table.at(i));
+    }
+    catch(const std::out_of_range& e)
+    {
+      sout << "[Exception] #" << i << " map block not found" << std::endl;
+      file.Write(std::string("error"));
+    }
   }
   table.clear();
 }
